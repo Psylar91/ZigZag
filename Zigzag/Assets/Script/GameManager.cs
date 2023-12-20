@@ -4,35 +4,50 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour {
-
-    public GameObject player;
+public class GameManager : MonoBehaviour
+{
+    public GameObject playerGO;
+    private Transform playerTF;
+    private Player player;
     public GameObject GameOverUI;
     public Text MoveSpeedText;
 
-	// Use this for initialization
-	void Start () {
+    private const float gameOverHeight = 0.7f;
+
+    private void Start()
+    {
+        playerTF = playerGO.transform;
+        player = playerGO.GetComponent<Player>();
         GameOverUI.SetActive(false);
     }
-	
-	// Update is called once per frame
-	void Update () {
-        MoveSpeedText.text = "속도 : " + player.GetComponent<Player>().moveSpeed.ToString("0.00");
 
-        if (player.transform.position.y < 0.5f)
+    private void Update()
+    {
+        UpdateMoveSpeed();
+        CheckGameOver();
+    }
+
+    private void CheckGameOver()
+    {
+        if (playerTF.position.y < gameOverHeight)
             GameOver();
+    }
 
-        if (Input.GetKeyDown(KeyCode.R) && GameOverUI.activeSelf == true)
-        {
-            GameOverUI.SetActive(false);
-            SceneManager.LoadScene(0);
-            Time.timeScale = 1;
-        }
-	}
+    private void UpdateMoveSpeed()
+    {
+        MoveSpeedText.text = "속도 : " + player.MoveSpeed.ToString("0.00");
+    }
 
-    void GameOver()
+    private void GameOver()
     {
         Time.timeScale = 0;
         GameOverUI.SetActive(true);
+    }
+
+    public void Restart()
+    {
+        GameOverUI.SetActive(false);
+        SceneManager.LoadScene(0);
+        SceneManager.sceneLoaded += (scene, mode) => { Time.timeScale = 1; };
     }
 }
